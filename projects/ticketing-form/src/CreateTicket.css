@@ -1,0 +1,78 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* prevent page scrollbar */
+}
+
+
+/* Full-page background */
+.ticket-page {
+  height: 100%;
+  width: 100%;
+  background: url("/public/BG.jpeg") no-repeat center center;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0; /* remove extra padding */
+  box-sizing: border-box;
+}
+
+/* Semi-transparent overlay for the form */
+.ticket-page .overlay {
+  max-height: 90vh;      /* prevent overlay from exceeding viewport */
+  width: 95%;
+  max-width: 900px;
+  padding: 30px;         /* internal spacing */
+  overflow-y: auto;      /* scroll inside overlay if needed */
+  background-color: rgba(255, 255, 255, 0.55);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  backdrop-filter: blur(4px);
+}
+
+/* Card inside overlay */
+.ticket-page .overlay .card {
+  margin-bottom: 10px;   /* spacing between inner cards */
+  background-color: rgba(255, 255, 255, 0.5); /* keep transparency */
+  border: none;          /* remove any borders */
+  box-shadow: none;
+}
+
+.ticket-page .overlay .row {
+  margin: 0;
+}
+.ticket-page .overlay .col-md-6 {
+  padding: 0 5px;
+}
+
+
+/* Form text and labels */
+.ticket-page .overlay label,
+.ticket-page .overlay .form-control,
+.ticket-page .overlay .rs__control {
+  color: #000;
+}
+
+/* Outer Card */
+.ticket-card {
+  background-color: rgba(255, 255, 255, 0.6); /* semi-transparent */
+  border: none; /* remove borders if desired */
+  box-shadow: none; /* optional */
+}
+
+/* Inner Cards */
+.ticket-card-inner {
+  background-color: rgba(255, 255, 255, 0.5); /* more transparent */
+  border: none;
+  box-shadow: none;
+}
+
+/* Form inputs / textarea */
+.transparent-input {
+  background-color: rgba(255, 255, 255, 0.3); /* see-through */
+  border: 1px solid #ccc; /* optional */
+  color: #000;
+}

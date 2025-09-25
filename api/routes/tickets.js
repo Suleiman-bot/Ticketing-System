@@ -310,6 +310,36 @@ if (ticket.attachments) {
   }
 });
 
+// GET ticket stats (counts by status)
+router.get('/stats', (_, res) => {
+  try {
+    if (!fs.existsSync(TICKETS_FILE)) return res.json({});
+
+    const lines = fs.readFileSync(TICKETS_FILE, 'utf8').trim().split('\n');
+    if (lines.length <= 1) return res.json({}); // only header, no data
+
+    const header = lines.shift().split(',').map(h => h.replace(/"/g, ''));
+    const statusIndex = header.indexOf('status');
+    if (statusIndex === -1) return res.json({});
+
+    const counts = {};
+    lines.forEach(line => {
+      const cols = line.match(/("([^"]|"")*"|[^,]+)/g) || [];
+      let status = cols[statusIndex] || '';
+      status = status.replace(/^"|"$/g, '').replace(/""/g, '"').trim();
+      if (!status) return;
+
+      counts[status] = (counts[status] || 0) + 1;
+    });
+
+    res.json(counts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to compute ticket stats' });
+  }
+});
+
+
 // GET single ticket by ID
 router.get('/:id', (req, res) => {
   const ticketId = req.params.id;
@@ -460,6 +490,7 @@ router.delete('/:id', (req, res) => {
     res.status(500).json({ error: 'Failed to delete ticket' });
   }
 });
+
 
 export default router;
 

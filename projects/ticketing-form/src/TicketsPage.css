@@ -8,3 +8,13 @@
 .filters { margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; }
 .tickets-table { width: 100%; border-collapse: collapse; }
 .tickets-table th, .tickets-table td { border: 1px solid #ccc; padding: 5px; text-align: left; }
+
+.tickets-page {
+  /* Full-page background image */
+  background-image: url('/public/BG.jpeg'); /* <-- put your image path */
+  background-size: cover;      /* make it cover the entire page */
+  background-position: center; /* center the image */
+  background-repeat: no-repeat;
+  min-height: 100vh;           /* ensure it fills the full viewport height */
+  width: 100%;
+}

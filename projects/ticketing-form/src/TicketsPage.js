@@ -35,6 +35,7 @@ import { Form, Button as RBButton, Card, Row, Col, Alert } from "react-bootstrap
 import SortIcon from "@mui/icons-material/Sort";   // add this at the top
 import Tooltip from "@mui/material/Tooltip";
 import DateRangeIcon from "@mui/icons-material/DateRange"; // calendar-like icon
+import "./TicketsPage.css";
 
 
 // ---------- constants (copied from App.js) ----------
@@ -130,7 +131,7 @@ const assignedEngineerOptions = [
 
 
 //TIcketsPage Components
-const TicketsPage = ({ theme, setTheme }) => {
+const TicketsPage = () => { 
   // state, hooks, etc...
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -143,11 +144,12 @@ const TicketsPage = ({ theme, setTheme }) => {
       navigate("/");  // redirect to login if not logged in
     }
   }, [navigate]);
-  // theme-based colors
-const textColor = theme === "dark" ? "#fff" : "#000";
-const cardBg = theme === "dark" ? "#1e1e1e" : "#ffffff";
-const fieldBg = theme === "dark" ? "#333" : "#fff";
-const borderColor = theme === "dark" ? fieldBg : "#ccc";
+
+// After (fixed colors, light theme)
+const textColor = "#000";
+const cardBg = "#fff";
+const fieldBg = "#fff";
+const borderColor = "#ccc";
 
 // alert state
 const [alert, setAlert] = useState({ type: "", message: "" });
@@ -1218,6 +1220,7 @@ case "resolve":
  
 //TITLE LOGO THEMES
 return (
+  <div className="tickets-page">   {/* <-- ADD THIS DIV HERE */}
     <Box sx={{ p: 2 }}>
       {/* 🔹 Title + Logo + Theme Switch */}
     <Stack
@@ -1251,19 +1254,6 @@ return (
         </Box>
       </Stack>
 
-      <Stack direction="row" spacing={2} alignItems="center">
-        <FormControlLabel
-          control={
-            <Switch
-              checked={theme === "dark"}
-              onChange={() =>
-                setTheme((t) => (t === "dark" ? "light" : "dark"))
-              }
-            />
-          }
-          label={theme === "dark" ? <DarkMode /> : <LightMode />}
-        />
-      </Stack>
     </Stack>
 {/* ============================
    FILTER BAR SECTION
@@ -1468,19 +1458,9 @@ return (
 
 {/* 🔹 Right: Action Buttons */}
 <Box sx={{ display: "flex", gap: 2, mt: { xs: 2, sm: 0 } }}>
-  <Button variant="contained" onClick={handleCreateTicket}>
-    Create New Ticket
-  </Button>
   <CSVLink data={tickets} filename={"tickets.csv"} style={{ textDecoration: "none" }}>
-    <Button variant="outlined">Export CSV</Button>
+    <Button variant="contained">Export CSV</Button>
   </CSVLink>
-  <Button 
-    variant="outlined" 
-    color="error" 
-    onClick={handleLogout}
-  >
-    Logout
-  </Button>
 </Box>
 </Box>
 
@@ -1492,9 +1472,10 @@ return (
 <TableContainer
   component={Paper}
   sx={{
-    backgroundColor: cardBg,              // adaptive background
-    color: textColor,                     // adaptive text
-    border: `1px solid ${borderColor}`,   // adaptive border
+    backgroundColor: "rgba(255, 255, 255, 0.2)", // semi-transparent white
+    color: textColor,
+    border: `1px solid ${borderColor}`,
+    backdropFilter: "blur(8px)", // optional, makes text readable
   }}
 >
   <Table>
@@ -1584,23 +1565,25 @@ return (
   </MenuItem>
 </Menu>
 
-      <Modal open={!!modalType} onClose={() => setModalType("")}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 600,
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
-          {modalBody()}
-        </Box>
-      </Modal>
+<Modal open={!!modalType} onClose={() => setModalType("")}>
+  <Box
+    sx={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: 600,
+      bgcolor: "rgba(255, 255, 255, 0.15)", // semi-transparent white
+      boxShadow: 24,
+      p: 4,
+      backdropFilter: "blur(10px)", // keeps text readable
+    }}
+  >
+    {modalBody()}
+  </Box>
+</Modal>
     </Box>
+    </div>  // <-- CLOSE THE WRAPPER DIV
   );
 };
 

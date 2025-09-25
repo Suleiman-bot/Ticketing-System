@@ -1,0 +1,99 @@
+/* Ensure html and body take full height */
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Overlay + dashboard */
+  .dashboard {
+    min-height: 100vh;
+    width: 100%;
+    background: url("/public/BG.jpeg") no-repeat center center;
+    background-size: cover; /* make it cover entire area */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  
+  
+  .overlay {
+    background: rgba(0, 0, 0, 0.65);
+    padding: 40px;
+    border-radius: 12px;
+    width: 95%;
+    max-width: 1400px; /* wider for all cards in one row */
+  }
+  
+  /* Dashboard title */
+  .dashboard-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: 1.5px;
+    text-shadow: 0px 2px 10px rgba(0, 0, 0, 0.7);
+  }
+  
+  .dashboard-subtitle {
+    font-size: 1.3rem;
+    color: #ddd;
+    margin-bottom: 40px;
+  }
+  
+  /* Stats container - single row, responsive */
+  .stats-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  /* Stats card - same height */
+  .stat-card {
+    flex: 1 1 18%; /* responsive width, all fit in one row */
+    min-width: 160px;
+    padding: 30px 20px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+    min-height: 180px; /* same height for all */
+  }
+  
+  .stat-card h3 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+  }
+  
+  /* Individual card colors */
+  .stat-card.open {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+  }
+  .stat-card.progress {
+    background: linear-gradient(135deg, #fd7e14, #e8590c);
+  }
+  .stat-card.resolved {
+    background: linear-gradient(135deg, #6f42c1, #5a32a3);
+  } 
+  .stat-card.closed {
+    background: linear-gradient(135deg, #28a745, #218838);
+  }
+  .stat-card.total {
+    background: linear-gradient(135deg, #17a2b8, #117a8b);
+  }
+  
+  /* Hover effect */
+  .stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.3);
+  }
+  

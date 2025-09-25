@@ -2,10 +2,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Form, Button, Card, Alert } from "react-bootstrap";
-import { EyeFill, EyeSlashFill } from "react-bootstrap-icons"; // 👈 npm i react-bootstrap-icons
+import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
 import "./LoginPage.css";
 
-export default function LoginPage() {
+export default function LoginPage({ onLogin }) {   // 👈 accept prop
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,10 +15,11 @@ export default function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // 🔑 Dummy login (replace later with backend API)
+    // 🔑 Dummy login (replace later with backend API if needed)
     if (username === "admin" && password === "password") {
-      localStorage.setItem("isLoggedIn", "true"); // persist login
-      navigate("/ticketspage");
+      localStorage.setItem("isLoggedIn", "true"); 
+      onLogin();   // 👈 set isAuthenticated=true in App.js
+      navigate("/dashboard");  // 👈 go to dashboard first
     } else {
       setError("Invalid username or password");
     }
@@ -53,7 +54,7 @@ export default function LoginPage() {
                 <Button
                   variant="outline-secondary"
                   onClick={(e) => {
-                    e.preventDefault(); // prevent form submit when clicking eye button
+                    e.preventDefault();
                     setShowPassword(!showPassword);
                   }}
                   style={{ marginLeft: "8px" }}
