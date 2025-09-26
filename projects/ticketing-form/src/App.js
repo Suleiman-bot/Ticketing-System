@@ -9,11 +9,12 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import Dashboard from "./Dashboard";
-import TicketsPage from "./TicketsPage";
-import CreateTicket from "./CreateTicket";
-import LoginPage from "./LoginPage";
+import Dashboard from "./pages/Dashboard";
+import TicketsPage from "./pages/TicketsPage";
+import CreateTicket from "./pages/CreateTicket";
+import LoginPage from "./pages/LoginPage";
 import "bootstrap/dist/css/bootstrap.min.css";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./App.css";
 
 // === Navbar component ===

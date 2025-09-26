@@ -27,7 +27,7 @@ import { CSVLink } from "react-csv";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 // import the logo with space in filename as requested
-import KasiLogo from "./KasiLogo.jpeg";
+import LOGO from "./LOGO.png";
 import { Stack, FormControlLabel, Switch } from "@mui/material";
 import { DarkMode, LightMode } from "@mui/icons-material";
 import ReactSelect from "react-select";
@@ -1232,21 +1232,37 @@ return (
     >
       <Stack direction="row" spacing={2} alignItems="center">
         <img
-          src={KasiLogo}
+         src={LOGO}
           alt="Kasi"
           style={{
             height: "80px",
             width: "auto",
             maxWidth: "100%",
             objectFit: "contain",
+            opacity: 1, // 0 = fully transparent, 1 = fully opaque
           }}
         />
         <Box>
-          <Typography variant="h6">Kasi Cloud Data Centers</Typography>
-{/* 🔹 Subtitle: Incident Tickets (adapts to dark/light mode) */}
+         <Typography 
+  variant="h6" 
+  sx={{ 
+    fontWeight: "bold",       // makes it bold
+    fontSize: "1.5rem",       // optional: larger font
+    color: textColor,         // dynamic theme color
+    letterSpacing: "0.5px",   // optional: nicer spacing
+  }}
+>
+  Kasi Cloud Data Centers
+</Typography>
+
 <Typography 
   variant="h6" 
-  sx={{ color: textColor }}   // use dynamic theme color
+  sx={{ 
+    fontWeight: 600,          // semi-bold
+    fontSize: "1.2rem",       // slightly smaller than main title
+    color: textColor, 
+    letterSpacing: "0.5px",
+  }}
 >
   Incident Tickets
 </Typography>
