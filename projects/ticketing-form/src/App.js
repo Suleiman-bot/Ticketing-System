@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import TicketsPage from "./pages/TicketsPage";
 import CreateTicket from "./pages/CreateTicket";
 import LoginPage from "./pages/LoginPage";
+import StatisticsPage from "./pages/StatisticsPage";
 import "bootstrap/dist/css/bootstrap.min.css";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./App.css";
@@ -48,6 +49,11 @@ const Navbar = ({ onLogout }) => {
             <li className="nav-item">
               <Link className="nav-link" to="/ticketspage">
                 Tickets
+              </Link>
+            </li>
+                      <li className="nav-item">
+              <Link className="nav-link" to="/statistics">
+                Statistics
               </Link>
             </li>
             <li className="nav-item">
@@ -129,6 +135,18 @@ function App() {
           element={
             <ProtectedRoute>
               <CreateTicket
+                theme={theme}
+                toggleTheme={toggleTheme}
+                onLogout={handleLogout}
+              />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/statistics"
+          element={
+            <ProtectedRoute>
+              <StatisticsPage
                 theme={theme}
                 toggleTheme={toggleTheme}
                 onLogout={handleLogout}
