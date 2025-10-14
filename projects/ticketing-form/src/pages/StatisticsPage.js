@@ -333,7 +333,7 @@ export default function StatisticsPage() {
                 <YAxis />
                 <ReTooltip />
                 <Legend />
-                <Line type="monotone" dataKey="opened" stroke="#0d6efd" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="opened" stroke="#dc3545" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="closed" stroke="#20c997" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>

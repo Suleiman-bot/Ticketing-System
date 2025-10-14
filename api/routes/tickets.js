@@ -548,31 +548,31 @@ Ticket.aggregate([
   },
   { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
 ]),
-
-//SLA Breached counts
-      Ticket.countDocuments({
+// SLA Breached counts (robust, dynamic, no const inside Promise)
+Ticket.countDocuments({
   ...match,
-  $or: [
-    { slaBreached: true },
-    { slaBreached: "Yes" },
-    { slaBreached: "yes" },
-    { slaBreached: "checked" },
-    { slaBreached: 1 },
-  ],
+  $expr: {
+    $in: [
+      {
+        $toString: { $ifNull: ["$sla_breach", "$slaBreached"] }
+      },
+      ["Yes", "yes", "TRUE", "true", "1", "checked"]
+    ]
+  }
 }),
 Ticket.countDocuments({
   ...match,
-  $or: [
-    { slaBreached: false },
-    { slaBreached: "No" },
-    { slaBreached: "no" },
-    { slaBreached: "unchecked" },
-    { slaBreached: 0 },
-    { slaBreached: null },
-  ],
+  $expr: {
+    $in: [
+      {
+        $toString: { $ifNull: ["$sla_breach", "$slaBreached"] }
+      },
+      ["No", "no", "FALSE", "false", "0", "unchecked", ""]
+    ]
+  }
 }),
-      Ticket.countDocuments(match)
-    ]);
+Ticket.countDocuments(match)
+]);
 
     // === Merge Opened + Closed Over Time ===
     const mergedOverTime = [];

@@ -90,6 +90,12 @@ html, body, #root {
   .stat-card.total {
     background: linear-gradient(135deg, #17a2b8, #117a8b);
   }
+  .stat-card.breaches {
+    background: linear-gradient(135deg, #dc3545, #a71d2a);
+  }
+  .stat-card.compliance {
+    background: linear-gradient(135deg, #20c997, #1f6e49);
+  }
   
   /* Hover effect */
   .stat-card:hover {

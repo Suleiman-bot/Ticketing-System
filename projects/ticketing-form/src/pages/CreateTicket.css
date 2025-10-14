@@ -76,3 +76,43 @@ html, body, #root {
   border: 1px solid #ccc; /* optional */
   color: #000;
 }
+
+/* === Fix form overlay width being overridden by StatisticsPage.css === */
+.ticket-page .overlay {
+  width: 95% !important;
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  padding: 30px !important;
+  background-color: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(4px) !important;
+  border-radius: 12px !important;
+}
+
+/* === Fix: Make dropdowns solid white (non-transparent) === */
+
+/* For standard <select> elements */
+.ticket-page select.form-control,
+.ticket-page .form-select {
+  background-color: #fff !important;
+  border: 1px solid #ccc !important;
+  color: #000 !important;
+  backdrop-filter: none !important;
+}
+
+/* For React Select or Select2 dropdown containers */
+.ticket-page .rs__control, 
+.ticket-page .select2-container .select2-selection {
+  background-color: #fff !important;
+  border: 1px solid #ccc !important;
+  color: #000 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* For dropdown menu itself */
+.ticket-page .rs__menu, 
+.ticket-page .select2-dropdown {
+  background-color: #fff !important;
+  border: 1px solid #ccc !important;
+  color: #000 !important;
+}

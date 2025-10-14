@@ -69,10 +69,15 @@ function Dashboard() {
           </div>
 
           {/* SLA Breaches */}
-          <div className="stat-card closed">
-            <h3>{stats.slaBreaches}</h3>
-            <p>SLA Breaches</p>
-          </div>
+      <div className="stat-card breaches">
+        <h3>{stats.slaStats?.breached ?? 0}</h3>
+        <p>SLA Breaches</p>
+      </div>
+      {/* SLA Compliant */}
+          <div className="stat-card compliance">
+      <h3>{stats.slaStats?.complianceRate ?? "0"}%</h3>
+      <p>SLA Compliance</p>
+    </div>
         </div>
       </div>
     </div>
