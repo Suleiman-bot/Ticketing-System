@@ -17,6 +17,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   LineChart, Line
 } from "recharts";
+// add these imports
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { FaRegCalendarAlt } from "react-icons/fa"; // optional calendar icon
 import "./StatisticsPage.css";
 
 const API_BASE = "http://192.168.0.3:8000/api/tickets/stats";
@@ -50,53 +54,78 @@ const COLORS = ["#0d6efd", "#20c997", "#ffc107", "#dc3545", "#6610f2", "#17a2b8"
 
 export default function StatisticsPage() {
   // UI state
-  const [compareMode, setCompareMode] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(null);
-  const [selectedMonth, setSelectedMonth] = useState(null);
-  const [compareYear, setCompareYear] = useState(null);
-  const [compareMonth, setCompareMonth] = useState(null);
-
+  // Replace these lines:
+  // const [selectedYear, setSelectedYear] = useState(null);
+  // const [selectedMonth, setSelectedMonth] = useState(null);
+  // const [compareYear, setCompareYear] = useState(null);
+  // const [compareMonth, setCompareMonth] = useState(null);
+  // With this:
+  const [rangeStart, setRangeStart] = useState(null);       // Date or null
+  const [rangeEnd, setRangeEnd] = useState(null);           // Date or null
+  const [compareRangeStart, setCompareRangeStart] = useState(null);
+  const [compareRangeEnd, setCompareRangeEnd] = useState(null);
   const [stats, setStats] = useState(null);
   const [compareStats, setCompareStats] = useState(null);
+  const [compareMode, setCompareMode] = useState(false);
+  // helpers to format the selected ranges for labels
+const fmt = d => (d ? d.toISOString().slice(0,10) : '');
+const rangeLabel = (s, e) => (s && e ? `${fmt(s)} → ${fmt(e)}` : (s||e) ? `${fmt(s||e)}` : 'All');
 
-  // fetch helper (if selectedMonth null -> fetch all)
-  const fetchStats = async (selectedMonth, setter) => {
-    try {
-      const url = selectedMonth ? `${API_BASE}?month=${selectedMonth}` : API_BASE;
-      const res = await axios.get(url);
-      setter(res.data || {}); // defensive: set to {} when data missing
-    } catch (err) {
-      console.error("Statistics fetch error:", err);
-      setter({}); // fall back to empty object so UI renders gracefully
-    }
-  };
+  // fetch helper with daterange awareness (if selectedMonth null -> fetch all)
+  // Replace old fetchStats with this:
+const formatDateParam = (d) => (d ? d.toISOString().slice(0, 10) : null);
+
+const fetchStats = async ({ startDate, endDate } = {}, setter) => {
+  try {
+    // build query string; fall back to the base endpoint when no dates
+    const params = new URLSearchParams();
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+    const url = params.toString() ? `${API_BASE}?${params.toString()}` : API_BASE;
+
+    const res = await axios.get(url);
+    setter(res.data || {}); // defensive
+  } catch (err) {
+    console.error("Statistics fetch error:", err);
+    setter({}); // graceful fallback
+  }
+};
 
   // initial and month change fetch (re-fetch when month changes)
+  // Primary range fetch (run whenever primary range changes)
   useEffect(() => {
-    if (selectedYear && selectedMonth) {
-      fetchStats(`${selectedYear.value}-${selectedMonth.value}`, setStats);
+    if (rangeStart && rangeEnd) {
+      const start = formatDateParam(rangeStart);
+      const end = formatDateParam(rangeEnd);
+      fetchStats({ startDate: start, endDate: end }, setStats);
     } else {
-      fetchStats(null, setStats);
+      // no range => fetch all
+      fetchStats({}, setStats);
     }
-  }, [selectedYear, selectedMonth]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rangeStart, rangeEnd]);
 
   // compare fetch: triggered when compareMode & compareMonth set
+  // Compare range fetch
   useEffect(() => {
-    if (compareMode && compareYear && compareMonth) {
-      fetchStats(`${compareYear.value}-${compareMonth.value}`, setCompareStats);
+    if (compareMode && compareRangeStart && compareRangeEnd) {
+      const start = formatDateParam(compareRangeStart);
+      const end = formatDateParam(compareRangeEnd);
+      fetchStats({ startDate: start, endDate: end }, setCompareStats);
     } else {
       setCompareStats(null);
     }
-  }, [compareMode, compareYear, compareMonth]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareMode, compareRangeStart, compareRangeEnd]);
 
   // clear filters -> show all
   const clearFilters = () => {
-    setSelectedMonth(null);
-    setCompareMonth(null);
-    setSelectedYear(null);
-    setCompareYear(null);
+    setRangeStart(null);
+    setRangeEnd(null);
+    setCompareRangeStart(null);
+    setCompareRangeEnd(null);
     setCompareMode(false);
-    fetchStats(null, setStats);
+    fetchStats({}, setStats);
   };
 
   // loading view
@@ -115,6 +144,14 @@ export default function StatisticsPage() {
   const statusData = Array.isArray(stats.byStatus) ? stats.byStatus : [];
   const priorityData = Array.isArray(stats.byPriority) ? stats.byPriority : [];
   const weeklyData = Array.isArray(stats.ticketsOverTime) ? stats.ticketsOverTime : [];
+  // Add safe normalization:
+  const normalizedWeekly = weeklyData.map(w => ({
+    weekLabel: w.weekLabel || w.date || (w.startDate && w.endDate ? `${w.startDate} → ${w.endDate}` : ''),
+    startDate: w.startDate || null,
+    endDate: w.endDate || null,
+    opened: typeof w.opened === "number" ? w.opened : Number(w.opened) || 0,
+    closed: typeof w.closed === "number" ? w.closed : Number(w.closed) || 0
+  }));
   const sla = stats.slaStats || { breached: 0, onTime: 0, complianceRate: null };
   const total = stats.totalTickets || 0;
 
@@ -132,100 +169,114 @@ export default function StatisticsPage() {
           <div className="title-block">
             <h1 className="dashboard-title">Incident Statistics</h1>
             <p className="dashboard-subtitle">
-              {compareMode && compareMonth
-                ? `Comparing ${selectedMonth?.label || "All"} vs ${compareMonth?.label}`
-                : selectedMonth?.label
-                ? `Overview for ${selectedMonth.label}`
+            {compareMode && compareRangeStart && compareRangeEnd
+              ? `Comparing ${rangeLabel(rangeStart, rangeEnd)} vs ${rangeLabel(compareRangeStart, compareRangeEnd)}`
+              : (rangeStart && rangeEnd)
+                ? `Overview for ${rangeLabel(rangeStart, rangeEnd)}`
                 : "All data overview"}
-            </p>
+          </p>
+          </div>
+          <div className="controls-block"> 
+          {/* START: replace old Year/Month selects with date-range pickers */}
+          <div className="month-selector date-range">
+            <label className="select-label">Range Start</label>
+            <div className="date-input-with-icon">
+              <DatePicker
+                selected={rangeStart}
+                onChange={(d) => setRangeStart(d)}
+                selectsStart
+                startDate={rangeStart}
+                endDate={rangeEnd}
+                placeholderText="Start date"
+                isClearable
+                dateFormat="yyyy-MM-dd"
+              />
+              <button type="button" className="calendar-icon" aria-label="Pick start date">
+                <FaRegCalendarAlt />
+              </button>
+            </div>
           </div>
 
-          <div className="controls-block">
-            <div className="month-selector">
-              <label className="select-label">Select Year</label>
-              <Select
-                options={YEARS}
-                value={selectedYear}
-                onChange={setSelectedYear}
-                placeholder="Select Year"
-                className="react-select"
+          <div className="month-selector date-range">
+            <label className="select-label">Range End</label>
+            <div className="date-input-with-icon">
+              <DatePicker
+                selected={rangeEnd}
+                onChange={(d) => setRangeEnd(d)}
+                selectsEnd
+                startDate={rangeStart}
+                endDate={rangeEnd}
+                minDate={rangeStart}
+                placeholderText="End date"
                 isClearable
-                styles={{
-                  control: (base) => ({ ...base, background: "rgba(0,0,0,0.45)", borderColor: "#333", color: "#fff" }),
-                  singleValue: (base) => ({ ...base, color: "#fff" }),
-                  menu: (base) => ({ ...base, background: "#0b0c10" })
-                }}
+                dateFormat="yyyy-MM-dd"
               />
+              <button type="button" className="calendar-icon" aria-label="Pick end date">
+                <FaRegCalendarAlt />
+              </button>
             </div>
+          </div>
 
-            <div className="month-selector">
-              <label className="select-label">Select Month</label>
-              <Select
-                options={MONTHS}
-                value={selectedMonth}
-                onChange={setSelectedMonth}
-                placeholder="Select Month"
-                className="react-select"
-                isClearable
-                styles={{
-                  control: (base) => ({ ...base, background: "rgba(0,0,0,0.45)", borderColor: "#333", color: "#fff" }),
-                  singleValue: (base) => ({ ...base, color: "#fff" }),
-                  menu: (base) => ({ ...base, background: "#0b0c10" })
-                }}
-              />
-            </div>
+          {/* Compare toggle button unchanged below this point */}
+          <button
+            className={`btn-compare ${compareMode ? "active" : ""}`}
+            onClick={() => {
+              setCompareMode((s) => {
+                if (s) {
+                  // turning compare off -> reset compare range
+                  setCompareRangeStart(null);
+                  setCompareRangeEnd(null);
+                }
+                return !s;
+              });
+            }}
+          >
+            {compareMode ? "Cancel Compare" : "Enable Compare"}
+          </button>
 
-            <button
-              className={`btn-compare ${compareMode ? "active" : ""}`}
-              onClick={() => {
-                setCompareMode((s) => {
-                  if (s) {
-                    setCompareMonth(null); // when disabling, clear compare month
-                    setCompareYear(null);  // also clear compare year
-                  }
-                  return !s;
-                });
-              }}
-            >
-              {compareMode ? "Cancel Compare" : "Enable Compare"}
-            </button>
-
-            {compareMode && (
-              <>
-                <div className="month-selector">
-                  <label className="select-label">Compare Year</label>
-                  <Select
-                    options={YEARS}
-                    value={compareYear}
-                    onChange={setCompareYear}
-                    placeholder="Select Year"
-                    className="react-select"
+          {compareMode && (
+            <>
+              <div className="month-selector date-range">
+                <label className="select-label">Compare Start</label>
+                <div className="date-input-with-icon">
+                  <DatePicker
+                    selected={compareRangeStart}
+                    onChange={(d) => setCompareRangeStart(d)}
+                    selectsStart
+                    startDate={compareRangeStart}
+                    endDate={compareRangeEnd}
+                    placeholderText="Start date"
                     isClearable
-                    styles={{
-                      control: (base) => ({ ...base, background: "rgba(0,0,0,0.45)", borderColor: "#333", color: "#fff" }),
-                      singleValue: (base) => ({ ...base, color: "#fff" }),
-                      menu: (base) => ({ ...base, background: "#0b0c10" })
-                    }}
+                    dateFormat="yyyy-MM-dd"
                   />
+                  <button type="button" className="calendar-icon" aria-label="Pick compare start date">
+                    <FaRegCalendarAlt />
+                  </button>
                 </div>
-                <div className="month-selector">
-                  <label className="select-label">Compare Month</label>
-                  <Select
-                    options={MONTHS}
-                    value={compareMonth}
-                    onChange={setCompareMonth}
-                    placeholder="Select Month"
-                    className="react-select"
+              </div>
+
+              <div className="month-selector date-range">
+                <label className="select-label">Compare End</label>
+                <div className="date-input-with-icon">
+                  <DatePicker
+                    selected={compareRangeEnd}
+                    onChange={(d) => setCompareRangeEnd(d)}
+                    selectsEnd
+                    startDate={compareRangeStart}
+                    endDate={compareRangeEnd}
+                    minDate={compareRangeStart}
                     isClearable
-                    styles={{
-                      control: (base) => ({ ...base, background: "rgba(0,0,0,0.45)", borderColor: "#333", color: "#fff" }),
-                      singleValue: (base) => ({ ...base, color: "#fff" }),
-                      menu: (base) => ({ ...base, background: "#0b0c10" })
-                    }}
+                    placeholderText="End date"
+                    dateFormat="yyyy-MM-dd"
                   />
+                  <button type="button" className="calendar-icon" aria-label="Pick compare end date">
+                    <FaRegCalendarAlt />
+                  </button>
                 </div>
-              </>
-            )}
+              </div>
+            </>
+          )}
+          {/* END: date-range pickers */}
 
             <button className="btn btn-clear" onClick={clearFilters}>
               Clear Filters
@@ -253,7 +304,7 @@ export default function StatisticsPage() {
           {compareMode && compareStats && (
             <motion.div className="summary-card compare" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
               <h3>{compareStats.totalTickets}</h3>
-              <p>{compareMonth?.label} Tickets</p>
+              <p>{compareRangeStart && compareRangeEnd ? `${fmt(compareRangeStart)} → ${fmt(compareRangeEnd)} Tickets` : 'Compare range Tickets'}</p>
             </motion.div>
           )}
         </div>
@@ -329,7 +380,7 @@ export default function StatisticsPage() {
             <ResponsiveContainer width="100%" height={420}>
               <LineChart data={weeklyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#222" />
-                <XAxis dataKey="date" />
+                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                 <YAxis />
                 <ReTooltip />
                 <Legend />
@@ -346,12 +397,12 @@ export default function StatisticsPage() {
               <ResponsiveContainer width="100%" height={420}>
                 <LineChart>
                   <CartesianGrid strokeDasharray="3 3" stroke="#222" />
-                  <XAxis dataKey="date" />
+                  <XAxis dataKey="weekLabel" tick={{ fontSize: 12 }} />
                   <YAxis />
                   <ReTooltip />
                   <Legend />
-                  <Line data={weeklyData} dataKey="opened" name={selectedMonth?.label || "A"} stroke="#0d6efd" strokeWidth={2} dot={false} />
-                  <Line data={compareStats.ticketsOverTime} dataKey="opened" name={compareMonth?.label || "B"} stroke="#dc3545" strokeWidth={2} dot={false} />
+                  <Line data={normalizedWeekly} dataKey="opened" name={rangeStart && rangeEnd ? rangeLabel(rangeStart, rangeEnd) : "A"} stroke="#0d6efd" strokeWidth={2} dot={false} />
+                  <Line data={compareStats.ticketsOverTime} dataKey="opened" name={compareRangeStart && compareRangeEnd ? rangeLabel(compareRangeStart, compareRangeEnd) : "B"} stroke="#dc3545" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </motion.div>
@@ -380,7 +431,6 @@ export default function StatisticsPage() {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
