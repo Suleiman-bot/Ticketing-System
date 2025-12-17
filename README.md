@@ -78,6 +78,10 @@ Getting started with Plane is simple. Choose the setup that works best for you:
 
 See [CONTRIBUTING](./CONTRIBUTING.md)
 
+> Note: The repository's root `docker-compose.yml` now includes a MongoDB service (`plane-mongo`). When you run `docker compose up --build` it will create the Mongo container and the Node API (`api`) will connect to it using `MONGO_URI` configured in `apps/api/.env`.
+
+> Optional services (Postgres, Redis, RabbitMQ, MinIO, Proxy and extra apps such as `admin`, `space`, `live`) are commented out in `docker-compose.yml` and `docker-compose-local.yml` to make local development lightweight. Re-enable them by uncommenting when you need the full Plane stack.
+
 ## ⚙️ Built with
 
 [![Next JS](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)

@@ -178,44 +178,31 @@ const fetchStats = async ({ startDate, endDate } = {}, setter) => {
           </div>
           <div className="controls-block"> 
           {/* START: replace old Year/Month selects with date-range pickers */}
-          <div className="month-selector date-range">
-            <label className="select-label">Range Start</label>
-            <div className="date-input-with-icon">
-              <DatePicker
-                selected={rangeStart}
-                onChange={(d) => setRangeStart(d)}
-                selectsStart
-                startDate={rangeStart}
-                endDate={rangeEnd}
-                placeholderText="Start date"
-                isClearable
-                dateFormat="yyyy-MM-dd"
+          {/* === MAIN DATE RANGE PICKER === */}
+          <div className="date-range-wrapper">
+          <label className="date-range-label">📅 Select Date Range</label>
+          <div className="date-range-bar">
+            <FaRegCalendarAlt className="calendar-icon-left" />
+            <DatePicker
+              selectsRange
+              startDate={rangeStart}
+              endDate={rangeEnd}
+              onChange={(dates) => {
+                const [start, end] = dates;
+                setRangeStart(start);
+                setRangeEnd(end);
+              }}
+              isClearable
+              placeholderText="Start → End"
+              dateFormat="yyyy-MM-dd"
+              className="date-range-input"
+              popperPlacement="bottom-end"       // 👈 positions below the bar neatly
+              popperProps={{
+              strategy: "fixed",           // ✅ ensures the popup doesn't get clipped
+              }}
               />
-              <button type="button" className="calendar-icon" aria-label="Pick start date">
-                <FaRegCalendarAlt />
-              </button>
-            </div>
           </div>
-
-          <div className="month-selector date-range">
-            <label className="select-label">Range End</label>
-            <div className="date-input-with-icon">
-              <DatePicker
-                selected={rangeEnd}
-                onChange={(d) => setRangeEnd(d)}
-                selectsEnd
-                startDate={rangeStart}
-                endDate={rangeEnd}
-                minDate={rangeStart}
-                placeholderText="End date"
-                isClearable
-                dateFormat="yyyy-MM-dd"
-              />
-              <button type="button" className="calendar-icon" aria-label="Pick end date">
-                <FaRegCalendarAlt />
-              </button>
-            </div>
-          </div>
+        </div>
 
           {/* Compare toggle button unchanged below this point */}
           <button
@@ -233,47 +220,33 @@ const fetchStats = async ({ startDate, endDate } = {}, setter) => {
           >
             {compareMode ? "Cancel Compare" : "Enable Compare"}
           </button>
-
+          {/* === COMPARE RANGE PICKER (when compareMode is active) === */}
           {compareMode && (
             <>
-              <div className="month-selector date-range">
-                <label className="select-label">Compare Start</label>
-                <div className="date-input-with-icon">
-                  <DatePicker
-                    selected={compareRangeStart}
-                    onChange={(d) => setCompareRangeStart(d)}
-                    selectsStart
-                    startDate={compareRangeStart}
-                    endDate={compareRangeEnd}
-                    placeholderText="Start date"
-                    isClearable
-                    dateFormat="yyyy-MM-dd"
-                  />
-                  <button type="button" className="calendar-icon" aria-label="Pick compare start date">
-                    <FaRegCalendarAlt />
-                  </button>
-                </div>
-              </div>
-
-              <div className="month-selector date-range">
-                <label className="select-label">Compare End</label>
-                <div className="date-input-with-icon">
-                  <DatePicker
-                    selected={compareRangeEnd}
-                    onChange={(d) => setCompareRangeEnd(d)}
-                    selectsEnd
-                    startDate={compareRangeStart}
-                    endDate={compareRangeEnd}
-                    minDate={compareRangeStart}
-                    isClearable
-                    placeholderText="End date"
-                    dateFormat="yyyy-MM-dd"
-                  />
-                  <button type="button" className="calendar-icon" aria-label="Pick compare end date">
-                    <FaRegCalendarAlt />
-                  </button>
-                </div>
-              </div>
+             <div className="date-range-wrapper">
+    <label className="date-range-label">🔁 Compare Range</label>
+    <div className="date-range-bar compare">
+      <FaRegCalendarAlt className="calendar-icon-left" />
+      <DatePicker
+        selectsRange
+        startDate={compareRangeStart}
+        endDate={compareRangeEnd}
+        onChange={(dates) => {
+          const [start, end] = dates;
+          setCompareRangeStart(start);
+          setCompareRangeEnd(end);
+        }}
+        isClearable
+        placeholderText="Compare range"
+        dateFormat="yyyy-MM-dd"
+        className="date-range-input"
+        popperPlacement="bottom-end"       // 👈 positions below the bar neatly
+        popperProps={{
+    strategy: "fixed",           // ✅ ensures the popup doesn't get clipped
+  }}
+       />
+    </div>
+  </div>
             </>
           )}
           {/* END: date-range pickers */}
